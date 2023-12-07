@@ -1,8 +1,8 @@
 package com.supermanzer.weatherapp.api
 
-import com.squareup.moshi.JsonClass
+import com.squareup.moshi.FromJson
 
-//@JsonClass(generateAdapter = true)
-//data class Forecast(
-//    val properties: ForecastProperties
-//)
+
+class Forecast(
+    val properties: ForecastProperties
+)

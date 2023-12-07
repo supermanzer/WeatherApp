@@ -13,11 +13,9 @@ import org.json.JSONObject
 class ForecastViewHolder (
     private val binding: ForecastPeriodItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
-    private val TAG = "ForecastViewHolder"
     fun bind(forecastPeriod: Any) {
         val period = JSONObject(forecastPeriod.toString())
         val iconUrl = period["icon"]
-        Log.d(TAG, "Forecast icon: $iconUrl")
         binding.forecastPeriodIcon.load(period["icon"])
         val titleString = "${period["name"]} - ${period["shortForecast"]}"
         binding.forecastPeriodName.text = titleString
