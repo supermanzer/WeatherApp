@@ -12,8 +12,8 @@ class LocationViewModel: ViewModel() {
     init {
         // TODO: Stub some default locations to test UI
 
-//        viewModelScope.launch {
-//
-//        }
+        viewModelScope.launch {
+            locations += locationRepository.getLocations()
+        }
     }
 }

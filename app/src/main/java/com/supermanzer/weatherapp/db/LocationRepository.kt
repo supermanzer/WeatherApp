@@ -17,13 +17,13 @@ class LocationRepository private constructor(context: Context) {
         ).createFromAsset(DATABASE_NAME)
         .build()
 
-    fun getLocations(): Flow<List<Location>> = database.locationDao().getLocations()
+    fun getLocations(): List<Location> = database.locationDao().getLocations()
 
-    suspend fun getLocation(id: UUID): Location = database.locationDao().getLocation(id)
-
-    suspend fun createLocation(location: Location) = database.locationDao().createLocation(location)
-
-    suspend fun deleteLocation(id: UUID) = database.locationDao().deleteLocation(id)
+//    suspend fun getLocation(id: UUID): Location = database.locationDao().getLocation(id)
+//
+//    suspend fun createLocation(location: Location) = database.locationDao().createLocation(location)
+//
+//    suspend fun deleteLocation(id: UUID) = database.locationDao().deleteLocation(id)
 
     companion object {
         private var INSTANCE: LocationRepository? = null

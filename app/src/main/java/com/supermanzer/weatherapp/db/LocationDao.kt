@@ -11,14 +11,14 @@ import java.util.UUID
 @Dao
 interface LocationDao {
     @Query("SELECT * FROM location")
-    fun getLocations(): Flow<List<Location>>
+    fun getLocations(): List<Location>
 
-    @Query("SELECT * FROM location WHERE id=(:id)")
-    suspend fun getLocation(id: UUID): Location
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun createLocation(location: Location)
-
-    @Delete
-    suspend fun deleteLocation(id: UUID)
+//    @Query("SELECT * FROM location WHERE id=(:id)")
+//    suspend fun getLocation(id: UUID): Location
+//
+//    @Insert(onConflict = OnConflictStrategy.REPLACE)
+//    suspend fun createLocation(location: Location)
+//
+//    @Delete
+//    suspend fun deleteLocation(id: UUID)
 }
