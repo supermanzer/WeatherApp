@@ -2,6 +2,7 @@ package com.supermanzer.weatherapp.api
 
 import okhttp3.ResponseBody
 import retrofit2.http.GET
+import retrofit2.http.Url
 
 private const val LAT = 36.603954
 private const val LON = -121.898460
@@ -16,6 +17,6 @@ interface NwsApi {
     )
     suspend fun getForecastEndpoints(): String
 
-    @GET(FORECAST_URL)
-    suspend fun getForecast(): ResponseBody
+    @GET()
+    suspend fun getForecast(@Url url: String?): Forecast
 }

@@ -1,10 +1,10 @@
 package com.supermanzer.weatherapp.api
 
+import com.squareup.moshi.JsonClass
 
 
-
-
-class ForecastPeriod(
+@JsonClass(generateAdapter = true)
+data class ForecastPeriod(
     val number: Number,
     val name: String,
     val isDaytime: Boolean,

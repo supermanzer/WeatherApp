@@ -1,4 +1,13 @@
 <resources>
-    <string name="app_name">WeatherApp</string>
-    <string name="new_location">New Location</string>
+    <string name="app_name">Manzer Weather</string>
+    <string name="add_location">Add Location</string>
+    <string name="weather_icon">weather icon</string>
+    <string name="location_name_label">Location Name</string>
+    <string name="coordinates_hint">Coordinates</string>
+    <string name="forecast_url">Forecast URL</string>
+    <string name="forecast_hourly_url">Hourly Forecast URL</string>
+    <string name="is_default">Is Default?</string>
+    <string name="coordinates_string">%1$s, %2$s</string>
+    <string name="forecast_url_label">Forecast URL</string>
+    <string name="new_location_hint">Enter a new location name</string>
 </resources>

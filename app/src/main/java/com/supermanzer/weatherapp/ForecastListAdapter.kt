@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import com.supermanzer.weatherapp.api.ForecastPeriod
 import com.supermanzer.weatherapp.databinding.ForecastPeriodItemBinding
 import org.json.JSONArray
 import org.json.JSONObject
@@ -16,10 +17,12 @@ class ForecastViewHolder (
     fun bind(forecastPeriod: Any) {
         val period = JSONObject(forecastPeriod.toString())
         val iconUrl = period["icon"]
-        binding.forecastPeriodIcon.load(period["icon"])
+        binding.forecastPeriodIcon.load(iconUrl)
         val titleString = "${period["name"]} - ${period["shortForecast"]}"
+
         binding.forecastPeriodName.text = titleString
         binding.forecastPeriodDesc.text = period["detailedForecast"].toString()
+
     }
 }
 
