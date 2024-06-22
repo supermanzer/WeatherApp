@@ -20,8 +20,6 @@ class LocationRepository private constructor(context: Context) {
 
     suspend fun getLocations(): List<Location> {
         // This is not returning any records despite 3 records in the DB. Figure this out
-        val count = database.locationDao().recordCount()
-        Log.d(TAG, "Row count: $count")
         val result = database.locationDao().getLocations()
         Log.d(TAG, "Location results returned: $result")
         return result

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.supermanzer.weatherapp.api.Forecast
+import com.supermanzer.weatherapp.api.ForecastPeriod
 import com.supermanzer.weatherapp.api.ForecastProperties
 import com.supermanzer.weatherapp.db.Location
 import com.supermanzer.weatherapp.db.LocationRepository
@@ -22,12 +23,13 @@ class ForecastViewModel: ViewModel() {
     var apiError: Boolean = false
     var apiErrorMessage: String? = null
 
-    private val _hourlyForecastPeriods: MutableStateFlow<JSONArray>  = MutableStateFlow(JSONArray())
-    private val _forecastPeriods: MutableStateFlow<JSONArray> =
-        MutableStateFlow(JSONArray())
-    val forecastPeriods: StateFlow<JSONArray>
+    private val _hourlyForecastPeriods: MutableStateFlow<List<ForecastPeriod>>  = MutableStateFlow(
+        emptyList())
+    private val _forecastPeriods: MutableStateFlow<List<ForecastPeriod>> =
+        MutableStateFlow(emptyList())
+    val forecastPeriods: StateFlow<List<ForecastPeriod>>
         get() = _forecastPeriods.asStateFlow()
-    val hourlyForecastPeriods: StateFlow<JSONArray>
+    val hourlyForecastPeriods: StateFlow<List<ForecastPeriod>>
         get() = _hourlyForecastPeriods.asStateFlow()
 
 
@@ -51,12 +53,13 @@ class ForecastViewModel: ViewModel() {
         }
     }
 
-    private suspend fun fetchUrlSetState(url: String, stateFlow: MutableStateFlow<JSONArray>){
-        val response = weatherRepository.getForecast(url)
-        Log.d(TAG, "getForecast Respose: $response")
-        val respObj = JSONObject(response.toString())
-        val properties = JSONObject(respObj["properties"].toString())
-        val periods =JSONArray(properties["periods"].toString())
+    private suspend fun fetchUrlSetState(url: String, stateFlow: MutableStateFlow<List<ForecastPeriod>>){
+        val forecast: Forecast = weatherRepository.getForecast(url)
+        Log.d(TAG, "getForecast Respose: $forecast")
+        val properties = forecast.properties
+//        Log.d(TAG, "getForecast Properties: $properties")
+        val periods = properties.periods
+        Log.d(TAG, "getForecast Periods: $periods")
         stateFlow.value = periods
     }
     init {

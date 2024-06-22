@@ -1,4 +1,4 @@
-package com.supermanzer.weatherapp
+package com.supermanzer.weatherapp.location
 
 import android.os.Bundle
 import android.util.Log
@@ -11,15 +11,18 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.supermanzer.weatherapp.BuildConfig
 import com.supermanzer.weatherapp.databinding.FragmentNewLocationBinding
-import com.supermanzer.weatherapp.databinding.FragmentWeatherForecastBinding
+import com.supermanzer.weatherapp.db.Location
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 private const val TAG = "NewLocationFragment"
-class NewLocationFragment: Fragment() {
+interface ClickListener {
+    fun onClick(location: Location)
+}
+class NewLocationFragment: Fragment(), ClickListener {
     private val locationListViewModel: LocationListViewModel by viewModels()
     private var job: Job? = null
 
@@ -37,12 +40,12 @@ class NewLocationFragment: Fragment() {
         _binding = FragmentNewLocationBinding.inflate(inflater, container, false)
 
         binding.newLocationInput.doOnTextChanged { text, _, _, _ ->
-            Log.d(TAG, "Location name entered $text")
+            // TODO: Add debounced API calls to get valid names
         }
         binding.locationLookup.setOnClickListener {
             val newLocationText = binding.newLocationInput.text
             Log.d(TAG, "Look up location button clicked with value: $newLocationText")
-            // TODO: Implement Geocoding API lookup if location provided, return error if not
+            locationListViewModel.lookupLocation(newLocationText.toString())
         }
         binding.locationListRecycler.layoutManager = LinearLayoutManager(context)
 
@@ -52,6 +55,7 @@ class NewLocationFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val fragment = this
         // Make asynchronous call to load the existing locations.
         viewLifecycleOwner.lifecycleScope.launch {
             // repeatOneLifecycle triggers this work when the fragment reaches a STARTED state and
@@ -60,9 +64,14 @@ class NewLocationFragment: Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 val locations = locationListViewModel.loadLocations()
                 Log.d(TAG, "Locations loaded: $locations")
-                binding.locationListRecycler.adapter = LocationListAdapter(locations)
+                binding.locationListRecycler.adapter = LocationListAdapter(
+                    locations, fragment)
             }
         }
+    }
+    override fun onClick(location: Location) {
+        Log.d(TAG, "Location clicked: $location")
+        locationListViewModel.deleteLocation(location)
     }
     override fun onDestroyView() {
         super.onDestroyView()

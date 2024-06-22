@@ -13,15 +13,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.supermanzer.weatherapp.databinding.FragmentWeatherForecastBinding
 import com.supermanzer.weatherapp.db.Location
 import kotlinx.coroutines.launch
-import org.json.JSONArray
-import org.json.JSONObject
-import retrofit2.Retrofit
-import retrofit2.converter.scalars.ScalarsConverterFactory
-import retrofit2.create
 import java.util.UUID
 
 private const val TAG = "ForecastFragment"
@@ -38,6 +34,7 @@ class ForecastFragment: Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         Log.d(TAG, "onCreate running")
+        Log.d(TAG,"This fragment has started!")
     }
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,7 +48,7 @@ class ForecastFragment: Fragment() {
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(TAG, "onViewCreatded Running")
+        Log.d(TAG, "onViewCreated Running")
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 forecastViewModel.forecastPeriods.collect{ items ->
@@ -79,8 +76,10 @@ class ForecastFragment: Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.new_location -> {
-                Log.d(TAG, "New Location selected")
-                showNewLocation()
+                Log.d(TAG, "Location menu item selected")
+                findNavController().navigate(
+                    R.id.to_location
+                )
                 true
             }
             else -> super.onOptionsItemSelected(item)

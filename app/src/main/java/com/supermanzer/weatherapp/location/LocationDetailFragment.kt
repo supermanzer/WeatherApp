@@ -1,4 +1,4 @@
-package com.supermanzer.weatherapp
+package com.supermanzer.weatherapp.location
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import com.supermanzer.weatherapp.R
 import com.supermanzer.weatherapp.databinding.FragmentLocationDetailBinding
-import com.supermanzer.weatherapp.databinding.FragmentLocationListBinding
 import com.supermanzer.weatherapp.db.Location
 import java.util.UUID
 
