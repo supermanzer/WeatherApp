@@ -5,28 +5,28 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import com.supermanzer.weatherapp.api.ForecastPeriod
 import com.supermanzer.weatherapp.databinding.ForecastPeriodItemBinding
-import org.json.JSONArray
-import org.json.JSONObject
 
 
+private const val TAG = "ForecastListAdapter"
 class ForecastViewHolder (
     private val binding: ForecastPeriodItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
-    private val TAG = "ForecastViewHolder"
-    fun bind(forecastPeriod: Any) {
-        val period = JSONObject(forecastPeriod.toString())
-        val iconUrl = period["icon"]
-        Log.d(TAG, "Forecast icon: $iconUrl")
-        binding.forecastPeriodIcon.load(period["icon"])
-        val titleString = "${period["name"]} - ${period["shortForecast"]}"
+    fun bind(forecastPeriod: ForecastPeriod) {
+//        val urlBase = "https://api.weather.gov"
+        val iconUrl = "${forecastPeriod.icon}"
+        Log.d(TAG, "Icon URL: $iconUrl")
+        binding.forecastPeriodIcon.load(iconUrl)
+        val titleString = "${forecastPeriod.name} - ${forecastPeriod.shortForecast}"
+
         binding.forecastPeriodName.text = titleString
-        binding.forecastPeriodDesc.text = period["detailedForecast"].toString()
+        binding.forecastPeriodDesc.text = forecastPeriod.detailedForecast
     }
 }
 
 class ForecastListAdapter(
-    private val forecastItems: JSONArray
+    private val forecastItems: List<ForecastPeriod>
 ) : RecyclerView.Adapter<ForecastViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ForecastViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -40,6 +40,6 @@ class ForecastListAdapter(
     }
 
     override fun getItemCount(): Int {
-        return forecastItems.length()
+        return forecastItems.size
     }
 }
