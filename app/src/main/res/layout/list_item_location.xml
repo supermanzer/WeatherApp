@@ -2,7 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="8dp"
+    >
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -13,9 +15,19 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/location_item_url"
+        android:id="@+id/location_item_is_default"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/location_item_name"
+        android:text="Is Default?"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/location_item_is_default_value"
+        app:layout_constraintStart_toEndOf="@+id/location_item_is_default"
+        app:layout_constraintTop_toBottomOf="@+id/location_item_name"
+        android:layout_marginStart="22dp"
+        android:text="True"
         />
     <Button
         android:layout_width="wrap_content"

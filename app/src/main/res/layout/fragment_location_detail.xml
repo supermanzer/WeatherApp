@@ -65,14 +65,4 @@
         android:text="@string/is_default"
         android:id="@+id/is_default"
         />
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Refresh"
-        android:id="@+id/refresh_button"
-        android:layout_marginTop="64dp"
-        android:layout_marginHorizontal="32dp"
-        style="@style/ShapeAppearanceOverlay.Material3.Button"
-        />
-
 </LinearLayout>

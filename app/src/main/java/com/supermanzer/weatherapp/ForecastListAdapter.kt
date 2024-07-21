@@ -1,5 +1,6 @@
 package com.supermanzer.weatherapp
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -8,13 +9,14 @@ import com.supermanzer.weatherapp.api.ForecastPeriod
 import com.supermanzer.weatherapp.databinding.ForecastPeriodItemBinding
 
 
-
+private const val TAG = "ForecastListAdapter"
 class ForecastViewHolder (
     private val binding: ForecastPeriodItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(forecastPeriod: ForecastPeriod) {
-
-        val iconUrl = forecastPeriod.icon
+//        val urlBase = "https://api.weather.gov"
+        val iconUrl = "${forecastPeriod.icon}"
+        Log.d(TAG, "Icon URL: $iconUrl")
         binding.forecastPeriodIcon.load(iconUrl)
         val titleString = "${forecastPeriod.name} - ${forecastPeriod.shortForecast}"
 

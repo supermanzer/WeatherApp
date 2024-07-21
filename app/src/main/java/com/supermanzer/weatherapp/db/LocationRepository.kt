@@ -3,13 +3,19 @@ package com.supermanzer.weatherapp.db
 import android.content.Context
 import android.util.Log
 import androidx.room.Room
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import java.lang.IllegalStateException
 import java.util.UUID
 
 private const val DATABASE_NAME="location-database.db"
 private const val TAG = "LocationRepository"
-class LocationRepository private constructor(context: Context) {
+class LocationRepository private constructor(
+    context: Context,
+    private val coroutineScope: CoroutineScope = GlobalScope
+) {
     private val database: LocationDatabase = Room
         .databaseBuilder(
             context.applicationContext,
@@ -24,22 +30,20 @@ class LocationRepository private constructor(context: Context) {
         Log.d(TAG, "Location results returned: $result")
         return result
     }
-    suspend fun getDefaultLocation(): Location {
-        return Location(
-            id = UUID.randomUUID(),
-            name = "Monterey, CA",
-            lat = 36.604,
-            lon = -121.898,
-            forecastUrl = "https://api.weather.gov/gridpoints/MTR/92,50/forecast",
-            forecastHourlyUrl = "https://api.weather.gov/gridpoints/MTR/92,50/forecast/hourly",
-            isDefault = true
-
-        )
-//        return database.locationDao().getDefaultLocation()
+    suspend fun getDefaultLocation(): Location? {
+        return database.locationDao().getDefaultLocation()
     }
     suspend fun getLocation(id: UUID): Location = database.locationDao().getLocation(id)
-    suspend fun createLocation(location: Location) = database.locationDao().createLocation(location)
+    suspend fun createLocation(location: Location) {
+       database.locationDao().createLocation(location)
+    }
 
+    fun updateLocation(location: Location){
+        Log.d(TAG, "Updating location: $location")
+        coroutineScope.launch {
+            database.locationDao().updateLocation(location)
+        }
+    }
     suspend fun deleteLocation(id: UUID) = database.locationDao().deleteLocation(id)
 
     companion object {

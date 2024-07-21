@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
@@ -25,11 +26,14 @@ interface LocationDao {
     @Query("SELECT COUNT(*) FROM locations")
     suspend fun recordCount(): Int
 
-    @Query("UPDATE locations SET isDefault = False")
-    suspend fun unsetDefault()
+    @Update
+    suspend fun updateLocation(location: Location)
 
-    @Query("UPDATE locations SET isDefault =True WHERE id=(:id)")
-    suspend fun setDefault(id: UUID)
+//    @Query("UPDATE locations SET isDefault = False")
+//    suspend fun unsetDefault()
+//
+//    @Query("UPDATE locations SET isDefault =True WHERE id=(:id)")
+//    suspend fun setDefault(id: UUID)
 
     @Query("DELETE FROM locations WHERE id=(:id)")
     suspend fun deleteLocation(id: UUID)

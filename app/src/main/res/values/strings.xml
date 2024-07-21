@@ -10,4 +10,5 @@
     <string name="coordinates_string">%1$s, %2$s</string>
     <string name="forecast_url_label">Forecast URL</string>
     <string name="new_location_hint">Enter a new location name</string>
+    <string name="confirm_location">Confirm Location</string>
 </resources>

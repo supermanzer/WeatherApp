@@ -1,6 +1,9 @@
 package com.supermanzer.weatherapp
 
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.supermanzer.weatherapp.api.Forecast
@@ -20,55 +23,61 @@ private const val TAG = "ForecastViewModel"
 class ForecastViewModel: ViewModel() {
     private val weatherRepository = WeatherRepository()
     private val locationRepository = LocationRepository.get()
+    var defaultLocation: Location? = null
     var apiError: Boolean = false
     var apiErrorMessage: String? = null
 
     private val _hourlyForecastPeriods: MutableStateFlow<List<ForecastPeriod>>  = MutableStateFlow(
         emptyList())
-    private val _forecastPeriods: MutableStateFlow<List<ForecastPeriod>> =
-        MutableStateFlow(emptyList())
-    val forecastPeriods: StateFlow<List<ForecastPeriod>>
-        get() = _forecastPeriods.asStateFlow()
+    private val _forecastPeriods: MutableLiveData<List<ForecastPeriod>> =
+        MutableLiveData(emptyList())
+    val forecastPeriods: LiveData<List<ForecastPeriod>>
+        get() = _forecastPeriods
     val hourlyForecastPeriods: StateFlow<List<ForecastPeriod>>
         get() = _hourlyForecastPeriods.asStateFlow()
 
 
 
-    private suspend fun setForecastPeriods(location: Location) {
+    fun updateForecastPeriods(location: Location) {
         if (location.forecastUrl !== null) {
             val url = location.forecastUrl
-            fetchUrlSetState(url, _forecastPeriods)
+            viewModelScope.launch {
+                fetchUrlSetState(url, _forecastPeriods)
+            }
         } else {
             apiError = true
             apiErrorMessage = "Forecast URL not set for location ${location.name}"
         }
     }
-    private suspend fun setHourlyForecast(location: Location) {
+    private suspend fun updateHourlyForecast(location: Location) {
         if (location.forecastHourlyUrl !== null) {
             val url = location.forecastHourlyUrl
-            fetchUrlSetState(url, _hourlyForecastPeriods)
+//            fetchUrlSetState(url, _hourlyForecastPeriods)
         } else {
             apiError = true
             apiErrorMessage = "Hourly forecast URL not set for location ${location.name}"
         }
     }
 
-    private suspend fun fetchUrlSetState(url: String, stateFlow: MutableStateFlow<List<ForecastPeriod>>){
-        val forecast: Forecast = weatherRepository.getForecast(url)
-        Log.d(TAG, "getForecast Respose: $forecast")
-        val properties = forecast.properties
-//        Log.d(TAG, "getForecast Properties: $properties")
-        val periods = properties.periods
-        Log.d(TAG, "getForecast Periods: $periods")
+    fun getDefaultLocationTitle(callback: (Location?) -> Unit) {
+        viewModelScope.launch {
+            val location = locationRepository.getDefaultLocation()
+            callback(location)
+        }
+    }
+    private suspend fun fetchUrlSetState(url: String, stateFlow: MutableLiveData<List<ForecastPeriod>>){
+        val periods = weatherRepository.getForecast(url).properties.periods
         stateFlow.value = periods
     }
     init {
         viewModelScope.launch {
             try {
-                val defaultLocation = locationRepository.getDefaultLocation()
+                defaultLocation = locationRepository.getDefaultLocation()
                 Log.d(TAG, "Default Location $defaultLocation")
-                setForecastPeriods(defaultLocation)
-                setHourlyForecast(defaultLocation)
+                if (defaultLocation != null) {
+                    updateForecastPeriods(defaultLocation!!)
+                    updateHourlyForecast(defaultLocation!!)
+                }
             } catch (ex: Exception) {
                 Log.e(TAG, "Failed to fetch forecast", ex)
                 apiError = true
@@ -79,7 +88,10 @@ class ForecastViewModel: ViewModel() {
     suspend fun addLocation(location: Location) {
         locationRepository.createLocation(location)
     }
-    suspend fun listLocations(): List<Location> {
-        return locationRepository.getLocations()
+    fun listLocations(callback: (List<Location>) -> Unit) {
+        viewModelScope.launch {
+            val locationList = locationRepository.getLocations()
+            callback(locationList)
+        }
     }
 }

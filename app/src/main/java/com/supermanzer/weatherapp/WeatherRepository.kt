@@ -52,19 +52,14 @@ class WeatherRepository {
 
     suspend fun fetchWeatherStatus() = nwsApi.fetchWeatherStatus()
 
-    suspend fun fetchForecastEndpoints() = nwsApi.getForecastEndpoints()
+    suspend fun fetchForecastEndpoints(lat: Double, lon: Double) = nwsApi.getForecastEndpoints(lat, lon)
 
     suspend fun getForecast(url: String) = nwsApi.getForecast(url)
 
-    suspend fun getGeocodeResponse(location: String) : GeocodeResponse {
+    suspend fun getGeocodeResponse(location: String): GeocodeResponse {
         val response = geocodeApi.getGeocode(location)
         Log.d(TAG, "getGeocodeResponse: $response")
         return response
     }
 
-    suspend fun getTestRequest() : GeocodeResponse {
-        val response = geocodeApi.testRequest()
-        Log.d(TAG, "getTestRequest: $response")
-        return response
-    }
 }

@@ -20,5 +20,18 @@
         android:name="com.supermanzer.weatherapp.location.NewLocationFragment"
         android:label="NewLocationFragment"
         tools:layout="@layout/fragment_new_location"
-        />
+        >
+        <action
+            android:id="@+id/to_location_detail"
+            app:destination="@id/locationDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/locationDetailFragment"
+        android:name="com.supermanzer.weatherapp.location.LocationDetailFragment"
+        android:label="LocationDetailFragment"
+        tools:layout="@layout/fragment_location_detail">
+        <argument
+            android:name="ID"
+            app:argType="java.util.UUID" />
+    </fragment>
 </navigation>
