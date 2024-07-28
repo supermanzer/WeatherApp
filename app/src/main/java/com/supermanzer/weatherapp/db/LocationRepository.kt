@@ -27,7 +27,7 @@ class LocationRepository private constructor(
     suspend fun getLocations(): List<Location> {
         // This is not returning any records despite 3 records in the DB. Figure this out
         val result = database.locationDao().getLocations()
-        Log.d(TAG, "Location results returned: $result")
+//        Log.d(TAG, "Location results returned: $result")
         return result
     }
     suspend fun getDefaultLocation(): Location? {

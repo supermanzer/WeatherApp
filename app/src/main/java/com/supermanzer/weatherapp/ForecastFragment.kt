@@ -22,6 +22,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.supermanzer.weatherapp.databinding.FragmentWeatherForecastBinding
 import com.supermanzer.weatherapp.db.Location
+import com.supermanzer.weatherapp.db.LocationRepository
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -34,7 +35,8 @@ class ForecastFragment: Fragment() {
             "Cannot access binding because it is null. Is view visible?"
         }
     private val forecastViewModel: ForecastViewModel by viewModels()
-    private var locationList: List<Location>? = null
+//    private val locationRepository = LocationRepository.get()
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,28 +53,28 @@ class ForecastFragment: Fragment() {
         _binding = FragmentWeatherForecastBinding.inflate(inflater, container, false)
         binding.forecastGrid.layoutManager = GridLayoutManager(context, 1)
 
-        val spinner: Spinner = binding.locationSpinner
-        spinner.onItemSelectedListener = object : AdapterView
-                .OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>,
-                                                view: View, position: Int, id: Long) {
-                        val location = locationList!![position]
-                        forecastViewModel.updateForecastPeriods(location)
-                    }
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-                }
-        forecastViewModel.listLocations {
-            locationList = it
-            val adapter = ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_spinner_item,
-                getLocationNames(it)
-            ).also { adapter ->
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            }
-            spinner.adapter = adapter
-
-        }
+//        val spinner: Spinner = binding.locationSpinner
+//        spinner.onItemSelectedListener = object : AdapterView
+//                .OnItemSelectedListener {
+//                    override fun onItemSelected(parent: AdapterView<*>,
+//                                                view: View, position: Int, id: Long) {
+//                        val location = locationList!![position]
+//                        forecastViewModel.updateForecastPeriods(location)
+//                    }
+//            override fun onNothingSelected(parent: AdapterView<*>) {}
+//                }
+//        forecastViewModel.listLocations {
+//            locationList = it
+//            val adapter = ArrayAdapter(
+//                requireContext(),
+//                android.R.layout.simple_spinner_item,
+//                getLocationNames(it)
+//            ).also { adapter ->
+//                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//            }
+//            spinner.adapter = adapter
+//
+//        }
         return binding.root
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -80,8 +82,8 @@ class ForecastFragment: Fragment() {
         forecastViewModel.getDefaultLocationTitle { location ->
             if (location != null) {
 //                (activity as AppCompatActivity).supportActionBar?.title = location.name
-                val id = locationList!!.indexOfFirst { it.name == location.name }
-                binding.locationSpinner.setSelection(id)
+//                val id = locationList!!.indexOfFirst { it.name == location.name }
+//                binding.locationSpinner.setSelection(id)
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
@@ -93,6 +95,10 @@ class ForecastFragment: Fragment() {
                         Log.d(TAG, "Forecast periods received: $items")
                         binding.forecastGrid.adapter = ForecastListAdapter(items)
                     }
+                }
+                forecastViewModel.locationList.observe(viewLifecycleOwner) { locations ->
+                    Log.d(TAG, "Location list received: $locations")
+
                 }
             }
         }

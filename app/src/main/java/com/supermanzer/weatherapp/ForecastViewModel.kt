@@ -24,6 +24,7 @@ class ForecastViewModel: ViewModel() {
     private val weatherRepository = WeatherRepository()
     private val locationRepository = LocationRepository.get()
     var defaultLocation: Location? = null
+
     var apiError: Boolean = false
     var apiErrorMessage: String? = null
 
@@ -31,10 +32,13 @@ class ForecastViewModel: ViewModel() {
         emptyList())
     private val _forecastPeriods: MutableLiveData<List<ForecastPeriod>> =
         MutableLiveData(emptyList())
+    private val _locationLiset: MutableLiveData<List<Location>> = MutableLiveData(emptyList())
     val forecastPeriods: LiveData<List<ForecastPeriod>>
         get() = _forecastPeriods
     val hourlyForecastPeriods: StateFlow<List<ForecastPeriod>>
         get() = _hourlyForecastPeriods.asStateFlow()
+    val locationList: LiveData<List<Location>>
+        get() = _locationLiset
 
 
 
@@ -78,6 +82,8 @@ class ForecastViewModel: ViewModel() {
                     updateForecastPeriods(defaultLocation!!)
                     updateHourlyForecast(defaultLocation!!)
                 }
+                val locations = locationRepository.getLocations()
+                _locationLiset.value = locations
             } catch (ex: Exception) {
                 Log.e(TAG, "Failed to fetch forecast", ex)
                 apiError = true
