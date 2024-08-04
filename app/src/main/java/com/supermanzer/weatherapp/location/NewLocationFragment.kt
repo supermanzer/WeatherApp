@@ -43,13 +43,13 @@ class NewLocationFragment: Fragment(), ClickListener {
         _binding = FragmentNewLocationBinding.inflate(inflater, container, false)
 
         binding.locationLookup.setOnClickListener {
-            val newLocationText = binding.newLocationInput.text
-            Log.d(TAG, "Look up location button clicked with value: $newLocationText")
-            locationListViewModel.lookupLocation(newLocationText.toString())
+            createNewLocation(binding.newLocationInput.text.toString())
+
         }
         binding.locationListRecycler.layoutManager = LinearLayoutManager(context)
         return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -59,13 +59,14 @@ class NewLocationFragment: Fragment(), ClickListener {
         binding.locationConfirm.isVisible = false
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                val locations = locationListViewModel.loadLocations()
-                Log.d(TAG, "Locations loaded: $locations")
-                binding.locationListRecycler.adapter = LocationListAdapter(
-                    locations, fragment
-                ) { id ->
-                    navigateToDetail(id)
-                }
+               locationListViewModel.locations.collect { locations ->
+                   binding.locationListRecycler.adapter = LocationListAdapter(
+                       locations, fragment
+                   ) { id ->
+                       navigateToDetail(id)
+                   }
+               }
+
                 locationListViewModel.locationResult.collect { location ->
                     if (location != null) {
                         Log.d(TAG, "Location found: $location")
@@ -82,6 +83,10 @@ class NewLocationFragment: Fragment(), ClickListener {
                 }
             }
         }
+    }
+    private fun createNewLocation(locationName: String) {
+        Log.d(TAG, "Look up location button clicked with value: $locationName")
+        locationListViewModel.lookupLocation(locationName)
     }
     override fun onClick(location: Location) {
         Log.d(TAG, "Location clicked: $location")

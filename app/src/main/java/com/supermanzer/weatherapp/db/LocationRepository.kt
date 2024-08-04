@@ -24,7 +24,7 @@ class LocationRepository private constructor(
         )
         .build()
 
-    suspend fun getLocations(): List<Location> {
+    fun getLocations(): Flow<List<Location>> {
         // This is not returning any records despite 3 records in the DB. Figure this out
         val result = database.locationDao().getLocations()
 //        Log.d(TAG, "Location results returned: $result")

@@ -53,29 +53,31 @@ class ForecastFragment: Fragment() {
         _binding = FragmentWeatherForecastBinding.inflate(inflater, container, false)
         binding.forecastGrid.layoutManager = GridLayoutManager(context, 1)
 
-//        val spinner: Spinner = binding.locationSpinner
-//        spinner.onItemSelectedListener = object : AdapterView
-//                .OnItemSelectedListener {
-//                    override fun onItemSelected(parent: AdapterView<*>,
-//                                                view: View, position: Int, id: Long) {
-//                        val location = locationList!![position]
-//                        forecastViewModel.updateForecastPeriods(location)
-//                    }
-//            override fun onNothingSelected(parent: AdapterView<*>) {}
-//                }
-//        forecastViewModel.listLocations {
-//            locationList = it
-//            val adapter = ArrayAdapter(
-//                requireContext(),
-//                android.R.layout.simple_spinner_item,
-//                getLocationNames(it)
-//            ).also { adapter ->
-//                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//            }
-//            spinner.adapter = adapter
 //
-//        }
         return binding.root
+    }
+    private fun createSpinner(locations: List<Location>) {
+        val spinner: Spinner = binding.locationSpinner
+        spinner.onItemSelectedListener = object : AdapterView
+                .OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>,
+                                                view: View, position: Int, id: Long) {
+                        val location = locations[position]
+                        forecastViewModel.updateForecastPeriods(location)
+                    }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+                }
+        forecastViewModel.listLocations {
+            val adapter = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                getLocationNames(locations)
+            ).also { adapter ->
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
+            spinner.adapter = adapter
+
+        }
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -98,7 +100,13 @@ class ForecastFragment: Fragment() {
                 }
                 forecastViewModel.locationList.observe(viewLifecycleOwner) { locations ->
                     Log.d(TAG, "Location list received: $locations")
-
+                    createSpinner(locations)
+                    forecastViewModel.getDefaultLocationTitle { location ->
+                        if (location != null) {
+                            val id = locations.indexOfFirst { it.name == location.name }
+                            binding.locationSpinner.setSelection(id)
+                        }
+                    }
                 }
             }
         }
