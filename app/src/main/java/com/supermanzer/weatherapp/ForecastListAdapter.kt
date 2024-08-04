@@ -14,9 +14,7 @@ class ForecastViewHolder (
     private val binding: ForecastPeriodItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(forecastPeriod: ForecastPeriod) {
-//        val urlBase = "https://api.weather.gov"
         val iconUrl = "${forecastPeriod.icon}"
-        Log.d(TAG, "Icon URL: $iconUrl")
         binding.forecastPeriodIcon.load(iconUrl)
         val titleString = "${forecastPeriod.name} - ${forecastPeriod.shortForecast}"
 

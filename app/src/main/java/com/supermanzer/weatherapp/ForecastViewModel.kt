@@ -24,17 +24,21 @@ class ForecastViewModel: ViewModel() {
     private val weatherRepository = WeatherRepository()
     private val locationRepository = LocationRepository.get()
     var defaultLocation: Location? = null
+
     var apiError: Boolean = false
     var apiErrorMessage: String? = null
 
-    private val _hourlyForecastPeriods: MutableStateFlow<List<ForecastPeriod>>  = MutableStateFlow(
+    private val _hourlyForecastPeriods: MutableLiveData<List<ForecastPeriod>>  = MutableLiveData(
         emptyList())
     private val _forecastPeriods: MutableLiveData<List<ForecastPeriod>> =
         MutableLiveData(emptyList())
+    private val _locationLiset: MutableLiveData<List<Location>> = MutableLiveData(emptyList())
     val forecastPeriods: LiveData<List<ForecastPeriod>>
         get() = _forecastPeriods
-    val hourlyForecastPeriods: StateFlow<List<ForecastPeriod>>
-        get() = _hourlyForecastPeriods.asStateFlow()
+    val hourlyForecastPeriods: LiveData<List<ForecastPeriod>>
+        get() = _hourlyForecastPeriods
+    val locationList: LiveData<List<Location>>
+        get() = _locationLiset
 
 
 
@@ -52,7 +56,7 @@ class ForecastViewModel: ViewModel() {
     private suspend fun updateHourlyForecast(location: Location) {
         if (location.forecastHourlyUrl !== null) {
             val url = location.forecastHourlyUrl
-//            fetchUrlSetState(url, _hourlyForecastPeriods)
+            fetchUrlSetState(url, _hourlyForecastPeriods)
         } else {
             apiError = true
             apiErrorMessage = "Hourly forecast URL not set for location ${location.name}"
@@ -78,6 +82,9 @@ class ForecastViewModel: ViewModel() {
                     updateForecastPeriods(defaultLocation!!)
                     updateHourlyForecast(defaultLocation!!)
                 }
+                locationRepository.getLocations().collect { locations ->
+                    _locationLiset.value = locations
+                }
             } catch (ex: Exception) {
                 Log.e(TAG, "Failed to fetch forecast", ex)
                 apiError = true
@@ -90,8 +97,9 @@ class ForecastViewModel: ViewModel() {
     }
     fun listLocations(callback: (List<Location>) -> Unit) {
         viewModelScope.launch {
-            val locationList = locationRepository.getLocations()
-            callback(locationList)
+            locationRepository.getLocations().collect { locations ->
+                callback(locations)
+            }
         }
     }
 }

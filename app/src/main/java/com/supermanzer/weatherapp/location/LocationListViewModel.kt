@@ -25,16 +25,11 @@ class LocationListViewModel: ViewModel() {
     private val _locationID = MutableStateFlow<UUID?>(null)
     val locationID = _locationID.asStateFlow()
 
-    var locations = mutableListOf<Location>()
-
+    var locations = locationRepository.getLocations()
     init {
         viewModelScope.launch {
-            locations += loadLocations()
-        }
-    }
 
-    fun getDefault(): Location {
-        return locations.filter { it.isDefault }[0]
+        }
     }
 
     fun addLocation(location: GeocodeResult) {
@@ -54,18 +49,12 @@ class LocationListViewModel: ViewModel() {
             )
             _locationID.value = dbLocation.id
             locationRepository.createLocation(dbLocation)
-            locations.add(dbLocation)
         }
     }
-    suspend fun loadLocations(): List<Location> {
-        val result = locationRepository.getLocations()
-        Log.d(TAG, "${result.size} locations loaded")
-        return result
-    }
+
     fun deleteLocation(location: Location) {
         viewModelScope.launch {
             locationRepository.deleteLocation(location.id)
-            locations.remove(location)
         }
     }
 
