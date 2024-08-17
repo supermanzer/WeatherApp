@@ -10,9 +10,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.CursorAdapter
+
 import android.widget.Spinner
-import androidx.appcompat.app.AppCompatActivity
+
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -22,9 +22,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.supermanzer.weatherapp.databinding.FragmentWeatherForecastBinding
 import com.supermanzer.weatherapp.db.Location
-import com.supermanzer.weatherapp.db.LocationRepository
+
 import kotlinx.coroutines.launch
-import java.util.UUID
+
 
 private const val TAG = "ForecastFragment"
 
@@ -35,16 +35,7 @@ class ForecastFragment: Fragment() {
             "Cannot access binding because it is null. Is view visible?"
         }
     private val forecastViewModel: ForecastViewModel by viewModels()
-//    private val locationRepository = LocationRepository.get()
 
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-        Log.d(TAG, "onCreate running")
-        Log.d(TAG,"This fragment has started!")
-    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -52,8 +43,6 @@ class ForecastFragment: Fragment() {
     ): View {
         _binding = FragmentWeatherForecastBinding.inflate(inflater, container, false)
         binding.forecastGrid.layoutManager = GridLayoutManager(context, 1)
-
-//
         return binding.root
     }
     private fun createSpinner(locations: List<Location>) {
