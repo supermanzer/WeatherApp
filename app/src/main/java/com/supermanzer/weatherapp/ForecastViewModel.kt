@@ -1,22 +1,19 @@
 package com.supermanzer.weatherapp
 
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
+
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.supermanzer.weatherapp.api.Forecast
+
 import com.supermanzer.weatherapp.api.ForecastPeriod
-import com.supermanzer.weatherapp.api.ForecastProperties
+
 import com.supermanzer.weatherapp.db.Location
 import com.supermanzer.weatherapp.db.LocationRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+
 import kotlinx.coroutines.launch
-import org.json.JSONArray
-import org.json.JSONObject
+
 
 private const val TAG = "ForecastViewModel"
 
@@ -32,13 +29,13 @@ class ForecastViewModel: ViewModel() {
         emptyList())
     private val _forecastPeriods: MutableLiveData<List<ForecastPeriod>> =
         MutableLiveData(emptyList())
-    private val _locationLiset: MutableLiveData<List<Location>> = MutableLiveData(emptyList())
+    private val _locationList: MutableLiveData<List<Location>> = MutableLiveData(emptyList())
     val forecastPeriods: LiveData<List<ForecastPeriod>>
         get() = _forecastPeriods
     val hourlyForecastPeriods: LiveData<List<ForecastPeriod>>
         get() = _hourlyForecastPeriods
     val locationList: LiveData<List<Location>>
-        get() = _locationLiset
+        get() = _locationList
 
 
 
@@ -83,7 +80,7 @@ class ForecastViewModel: ViewModel() {
                     updateHourlyForecast(defaultLocation!!)
                 }
                 locationRepository.getLocations().collect { locations ->
-                    _locationLiset.value = locations
+                    _locationList.value = locations
                 }
             } catch (ex: Exception) {
                 Log.e(TAG, "Failed to fetch forecast", ex)
