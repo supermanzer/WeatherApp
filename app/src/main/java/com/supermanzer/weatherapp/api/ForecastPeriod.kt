@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import com.squareup.moshi.ToJson
+import java.time.OffsetDateTime
 
 
 @JsonClass(generateAdapter = true)
@@ -19,8 +20,11 @@ data class ForecastPeriod(
     val windDirection: String,
     val icon: String,
     val shortForecast: String,
-    val detailedForecast: String
+    val detailedForecast: String,
+    val startTime: String,
+    val endTime: String,
 )
+
 
 
 

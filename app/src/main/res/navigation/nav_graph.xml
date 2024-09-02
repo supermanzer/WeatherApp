@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/forecastFragment">
+    app:startDestination="@id/layoutFragment">
 
     <fragment
         android:id="@+id/forecastFragment"
@@ -33,5 +33,14 @@
         <argument
             android:name="ID"
             app:argType="java.util.UUID" />
+    </fragment>
+    <fragment
+        android:id="@+id/layoutFragment"
+        android:name="com.supermanzer.weatherapp.LayoutFragment"
+        android:label="fragment_layout"
+        tools:layout="@layout/fragment_layout" >
+        <action
+            android:id="@+id/action_layoutFragment_to_forecastFragment"
+            app:destination="@id/forecastFragment" />
     </fragment>
 </navigation>
