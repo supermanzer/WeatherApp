@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.supermanzer.weatherapp.databinding.FragmentHourlyForecastBinding
 import kotlinx.coroutines.launch
 
@@ -33,6 +34,8 @@ class HourlyForecastFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         _binding = FragmentHourlyForecastBinding.inflate(inflater, container, false)
+
+        binding.hourlyForecastList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         return binding.root
     }
 
@@ -42,7 +45,7 @@ class HourlyForecastFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.hourlyForecastPeriods.observe(viewLifecycleOwner) { items ->
                     Log.d(TAG, "Hourly forecast periods: $items")
-                    // TODO: Add something here to update the UI
+                    binding.hourlyForecastList.adapter = HourlyForecastListAdapter(items)
                 }
             }
         }
