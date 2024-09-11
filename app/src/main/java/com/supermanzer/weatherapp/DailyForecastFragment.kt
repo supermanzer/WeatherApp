@@ -1,5 +1,6 @@
 package com.supermanzer.weatherapp
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,11 +10,18 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.supermanzer.weatherapp.databinding.FragmentDailyForecastBinding
 import kotlinx.coroutines.launch
 
 private const val TAG = "DailyForecastFragment"
+
+class CustomLayoutManager(context: Context?) : LinearLayoutManager(context) {
+    override fun canScrollVertically(): Boolean {
+        return true
+    }
+}
+
 class DailyForecastFragment : Fragment() {
     private var _binding: FragmentDailyForecastBinding? = null
     private val binding
@@ -24,13 +32,18 @@ class DailyForecastFragment : Fragment() {
         ownerProducer = { requireParentFragment() }
     )
 
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         _binding = FragmentDailyForecastBinding.inflate(inflater, container, false)
-        binding.dailyForecastList.layoutManager = GridLayoutManager(context, 1)
+
+
+        binding.dailyForecastList.layoutManager = CustomLayoutManager(context)
+
         return binding.root
     }
 
