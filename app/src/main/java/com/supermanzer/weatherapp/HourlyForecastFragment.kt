@@ -45,7 +45,8 @@ class HourlyForecastFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.hourlyForecastPeriods.observe(viewLifecycleOwner) { items ->
                     Log.d(TAG, "Hourly forecast periods: $items")
-                    binding.hourlyForecastList.adapter = HourlyForecastListAdapter(items)
+                    val forecastPeriods = items.take(24)
+                    binding.hourlyForecastList.adapter = HourlyForecastListAdapter(forecastPeriods)
                 }
             }
         }
