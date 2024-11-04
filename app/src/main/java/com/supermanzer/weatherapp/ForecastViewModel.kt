@@ -89,9 +89,6 @@ class ForecastViewModel: ViewModel() {
             }
         }
     }
-    suspend fun addLocation(location: Location) {
-        locationRepository.createLocation(location)
-    }
     fun listLocations(callback: (List<Location>) -> Unit) {
         viewModelScope.launch {
             locationRepository.getLocations().collect { locations ->

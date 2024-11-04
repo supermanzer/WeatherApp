@@ -55,7 +55,6 @@ class WeatherRepository {
 
     suspend fun getGeocodeResponse(location: String): GeocodeResponse {
         val response = geocodeApi.getGeocode(location)
-        Log.d(TAG, "getGeocodeResponse: $response")
         return response
     }
 

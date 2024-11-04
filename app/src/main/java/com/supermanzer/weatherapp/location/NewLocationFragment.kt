@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -17,6 +18,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.supermanzer.weatherapp.databinding.FragmentNewLocationBinding
 import com.supermanzer.weatherapp.db.Location
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlin.reflect.typeOf
@@ -27,8 +30,6 @@ interface ClickListener {
 }
 class NewLocationFragment: Fragment(), ClickListener {
     private val locationListViewModel: LocationListViewModel by viewModels()
-    private var job: Job? = null
-
     private var _binding: FragmentNewLocationBinding? = null
     private val binding
         get() = checkNotNull(_binding) {
@@ -43,55 +44,86 @@ class NewLocationFragment: Fragment(), ClickListener {
         _binding = FragmentNewLocationBinding.inflate(inflater, container, false)
 
         binding.locationLookup.setOnClickListener {
-            createNewLocation(binding.newLocationInput.text.toString())
-
+            lookupNewLocation()
         }
         binding.locationListRecycler.layoutManager = LinearLayoutManager(context)
+
         return binding.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val fragment = this
         (requireActivity() as AppCompatActivity).supportActionBar?.title = "New Location"
         binding.locationPreview.isVisible = false
         binding.locationConfirm.isVisible = false
+        binding.locationConfirm.isEnabled = false
+
+        binding.locationConfirm.setOnClickListener {
+           createLocation()
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                locationListViewModel.locations.collect { locations ->
                    binding.locationListRecycler.adapter = LocationListAdapter(
-                       locations, fragment
-                   ) { id ->
-                       navigateToDetail(id)
-                   }
+                       locations,
+                       this@NewLocationFragment,
+                       ::navigateToDetail
+                   )
                }
-
-                locationListViewModel.locationResult.collect { location ->
-                    if (location != null) {
-                        Log.d(TAG, "Location found: $location")
+                locationListViewModel.geocodeResult.collect { result ->
+                    if (result != null) {
+                     Log.d(TAG, "Location found: $result")
                         binding.locationPreview.isVisible = true
-                        binding.locationPreview.text = location.formatted_address
+                        binding.locationPreview.text = result.formatted_address
                         binding.locationConfirm.isVisible = true
-                        binding.locationConfirm.setOnClickListener {
-                            locationListViewModel.addLocation(location)
-                            binding.newLocationInput.setText("")
-                            binding.locationPreview.isVisible = false
-                            binding.locationConfirm.isVisible = false
-                        }
+                        binding.locationConfirm.isEnabled = true
+                    } else {
+                        binding.locationPreview.isVisible = false
+                        binding.locationConfirm.isVisible = false
+                        binding.locationConfirm.isEnabled = false
                     }
                 }
             }
         }
+
     }
-    private fun createNewLocation(locationName: String) {
+
+    private fun createLocation() {
+        if (locationListViewModel.geocodeResult.value != null) {
+            locationListViewModel.addLocation(locationListViewModel.geocodeResult.value!!)
+            binding.newLocationInput.setText("")
+            binding.locationPreview.isVisible = false
+            binding.locationConfirm.isVisible = false
+            Toast.makeText(
+                requireContext(),
+                "Location added",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            Log.d(TAG, "View model geocode result is null")
+        }
+    }
+    private fun lookupNewLocation() {
+        val locationName = binding.newLocationInput.text.toString()
         Log.d(TAG, "Look up location button clicked with value: $locationName")
-        locationListViewModel.lookupLocation(locationName)
+        if (locationName.isNotBlank()) {
+            locationListViewModel.lookupLocation(locationName)
+        } else {
+            Toast.makeText(
+                requireContext(),
+                "Please enter a location name",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
     }
     override fun onClick(location: Location) {
         Log.d(TAG, "Location clicked: $location")
         locationListViewModel.deleteLocation(location)
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

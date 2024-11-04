@@ -42,5 +42,13 @@
         <action
             android:id="@+id/action_layoutFragment_to_forecastFragment"
             app:destination="@id/forecastFragment" />
+        <action
+            android:id="@+id/layout_to_location"
+            app:destination="@id/newLocationFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/addLocationFragment"
+        android:name="com.supermanzer.weatherapp.AddLocationFragment"
+        android:label="fragment_add_location"
+        tools:layout="@layout/fragment_add_location" />
 </navigation>
