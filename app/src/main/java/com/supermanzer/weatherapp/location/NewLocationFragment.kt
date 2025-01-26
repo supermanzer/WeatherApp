@@ -60,21 +60,25 @@ class NewLocationFragment: Fragment(), ClickListener {
         binding.locationConfirm.isEnabled = false
 
         binding.locationConfirm.setOnClickListener {
-           createLocation()
+            createLocation()
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-               locationListViewModel.locations.collect { locations ->
-                   binding.locationListRecycler.adapter = LocationListAdapter(
-                       locations,
-                       this@NewLocationFragment,
-                       ::navigateToDetail
-                   )
-               }
+                locationListViewModel.locations.collect { locations ->
+                    binding.locationListRecycler.adapter = LocationListAdapter(
+                        locations,
+                        this@NewLocationFragment,
+                        ::navigateToDetail
+                    )
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 locationListViewModel.geocodeResult.collect { result ->
                     if (result != null) {
-                     Log.d(TAG, "Location found: $result")
+                        Log.d(TAG, "Location found: $result")
                         binding.locationPreview.isVisible = true
                         binding.locationPreview.text = result.formatted_address
                         binding.locationConfirm.isVisible = true
@@ -87,9 +91,7 @@ class NewLocationFragment: Fragment(), ClickListener {
                 }
             }
         }
-
     }
-
     private fun createLocation() {
         if (locationListViewModel.geocodeResult.value != null) {
             locationListViewModel.addLocation(locationListViewModel.geocodeResult.value!!)

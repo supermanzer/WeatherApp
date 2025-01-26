@@ -49,7 +49,7 @@ class CurrentConditionsFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.forecastPeriods.observe(viewLifecycleOwner) { items ->
+                viewModel.hourlyForecastPeriods.observe(viewLifecycleOwner) { items ->
                     Log.d(TAG, "Forecast period: $items[0]")
                     if (items.isNotEmpty()){
                         UpdateUi(items[0])

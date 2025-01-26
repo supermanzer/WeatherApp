@@ -51,7 +51,7 @@ class LayoutFragment : Fragment() {
             override fun onItemSelected(parent: AdapterView<*>,
                                         view: View, position: Int, id: Long) {
                 val location = locations[position]
-                forecastViewModel.updateForecastPeriods(location)
+                forecastViewModel.updateForecast(location)
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }

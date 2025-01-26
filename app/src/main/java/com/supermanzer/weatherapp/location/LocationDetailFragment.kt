@@ -61,7 +61,7 @@ class LocationDetailFragment: Fragment() {
                 }
                 if (isChecked) {
                     Log.d(TAG, "Updating forecast periods to new location")
-                    forecastVewModel.updateForecastPeriods(
+                    forecastVewModel.updateForecast(
                         locationDetailViewModel.location.value!!
                     )
                 }

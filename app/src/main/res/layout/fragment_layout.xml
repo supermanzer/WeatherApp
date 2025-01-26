@@ -10,9 +10,10 @@
     >
         <Spinner
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="40dp"
             android:id="@+id/location_spinner"
             android:layout_marginBottom="8dp"
+            app:layout_constraintTop_toTopOf="parent"
             />
 
         <FrameLayout
@@ -32,6 +33,7 @@
             app:layout_constraintTop_toBottomOf="@+id/current_conditions"
             android:text="Hourly Conditions"
             android:layout_marginTop="20dp"
+            style="@style/TextAppearance.Material3.HeadlineSmall"
         />
         <FrameLayout
             android:layout_width="match_parent"
@@ -50,6 +52,8 @@
             app:layout_constraintTop_toBottomOf="@+id/hourly_forecast"
             android:text="Daily Forecast"
             android:layout_marginTop="20dp"
+            android:layout_marginBottom="16dp"
+            style="@style/TextAppearance.AppCompat.Headline"
         />
         <FrameLayout
             android:layout_width="match_parent"
@@ -59,7 +63,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/daily_label"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="36dp"
+
             />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

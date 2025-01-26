@@ -39,7 +39,7 @@ class ForecastViewModel: ViewModel() {
 
 
 
-    fun updateForecastPeriods(location: Location) {
+    private fun updateForecastPeriods(location: Location) {
         if (location.forecastUrl !== null) {
             val url = location.forecastUrl
             viewModelScope.launch {
@@ -50,10 +50,12 @@ class ForecastViewModel: ViewModel() {
             apiErrorMessage = "Forecast URL not set for location ${location.name}"
         }
     }
-    private suspend fun updateHourlyForecast(location: Location) {
+    private fun updateHourlyForecast(location: Location) {
         if (location.forecastHourlyUrl !== null) {
             val url = location.forecastHourlyUrl
-            fetchUrlSetState(url, _hourlyForecastPeriods)
+            viewModelScope.launch {
+                fetchUrlSetState(url, _hourlyForecastPeriods)
+            }
         } else {
             apiError = true
             apiErrorMessage = "Hourly forecast URL not set for location ${location.name}"
@@ -67,8 +69,16 @@ class ForecastViewModel: ViewModel() {
         }
     }
     private suspend fun fetchUrlSetState(url: String, stateFlow: MutableLiveData<List<ForecastPeriod>>){
-        val periods = weatherRepository.getForecast(url).properties.periods
-        stateFlow.value = periods
+        try {
+            val periods = weatherRepository.getForecast(url).properties.periods
+            stateFlow.value = periods
+        } catch (ex: Exception) {
+            Log.e(TAG, "Failing to fetch forecast periods", ex)
+        }
+    }
+    fun updateForecast(location: Location) {
+        updateForecastPeriods(location)
+        updateHourlyForecast(location)
     }
     init {
         viewModelScope.launch {
@@ -76,8 +86,7 @@ class ForecastViewModel: ViewModel() {
                 defaultLocation = locationRepository.getDefaultLocation()
                 Log.d(TAG, "Default Location $defaultLocation")
                 if (defaultLocation != null) {
-                    updateForecastPeriods(defaultLocation!!)
-                    updateHourlyForecast(defaultLocation!!)
+                   updateForecast(defaultLocation!!)
                 }
                 locationRepository.getLocations().collect { locations ->
                     _locationList.value = locations

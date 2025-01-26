@@ -51,4 +51,8 @@
         android:name="com.supermanzer.weatherapp.AddLocationFragment"
         android:label="fragment_add_location"
         tools:layout="@layout/fragment_add_location" />
+    <fragment
+        android:id="@+id/dailyForecastFragment"
+        android:name="com.supermanzer.weatherapp.DailyForecastFragment"
+        android:label="DailyForecastFragment" />
 </navigation>
