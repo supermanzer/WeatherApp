@@ -8,4 +8,6 @@ import androidx.room.TypeConverters
 @TypeConverters(LocationTypeConverters::class)
 abstract class LocationDatabase: RoomDatabase() {
     abstract fun locationDao(): LocationDao
+
+    companion object
 }

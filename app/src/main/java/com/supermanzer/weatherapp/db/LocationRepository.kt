@@ -12,7 +12,7 @@ import java.util.UUID
 
 private const val DATABASE_NAME="location-database.db"
 private const val TAG = "LocationRepository"
-class LocationRepository private constructor(
+class LocationRepository internal constructor(
     context: Context,
     private val coroutineScope: CoroutineScope = GlobalScope
 ) {
@@ -47,6 +47,14 @@ class LocationRepository private constructor(
         }
     }
     suspend fun deleteLocation(id: UUID) = database.locationDao().deleteLocation(id)
+
+    suspend fun updateIsDefault(id: UUID, isDefault: Boolean) {
+        database.locationDao().unsetDefault()
+        if (isDefault) {
+            database.locationDao().setDefault(id)
+        }
+    }
+
 
     companion object {
         private var INSTANCE: LocationRepository? = null

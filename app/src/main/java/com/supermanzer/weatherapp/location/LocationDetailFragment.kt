@@ -30,7 +30,7 @@ class LocationDetailFragment: Fragment() {
         }
 
     private val locationDetailViewModel: LocationDetailViewModel by viewModels {
-        LocationDetailViewModelFactory(args.ID)
+        LocationDetailViewModel.LocationDetailViewModelFactory(args.ID, requireContext())
     }
 
     override fun onCreateView(

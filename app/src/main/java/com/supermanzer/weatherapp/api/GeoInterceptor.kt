@@ -12,7 +12,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 private val geoApiKey = BuildConfig.MAPS_API_KEY
 
 val loggingInterceptor = HttpLoggingInterceptor().apply {
-    level = HttpLoggingInterceptor.Level.BODY
+    level = HttpLoggingInterceptor.Level.BASIC
 }
 
 class GeoInterceptor: Interceptor {

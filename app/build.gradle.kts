@@ -41,35 +41,44 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.11" // Or the latest compatible version
+    }
     kotlinOptions {
         jvmTarget = "17"
     }
     buildFeatures {
         viewBinding = true
         buildConfig = true
-//        compose = true
+        compose = true
     }
 }
 
 dependencies {
+    val nav_version = "2.7.6" // Or latest version
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation("androidx.compose.material3:material3-android:1.3.2")
     // Compose dependencies
-//    val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
-//    implementation(composeBom)
-//    androidTestImplementation(composeBom)
-//    implementation("androidx.compose.ui:ui-tooling-preview")
-//    debugImplementation("androidx.compose.ui:ui-tooling")
-//    // UI Tests
-//    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-//    debugImplementation("androidx.compose.ui:ui-test-manifest")
-//    // Optional - Integration with activities
-//    implementation("androidx.activity:activity-compose:1.9.0")
-//    // Optional - Integration with ViewModels
-//    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
-//    // Optional - Integration with LiveData
-//    implementation("androidx.compose.runtime:runtime-livedata")
-//    implementation("androidx.compose.material:material-icons-core")
-//    // Optional - Add full set of material icons
-//    implementation("androidx.compose.material:material-icons-extended")
+    val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    // UI Tests
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    // Optional - Integration with activities
+    implementation("androidx.activity:activity-compose:1.9.0")
+    // Optional - Integration with ViewModels
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+    // Optional - Integration with LiveData
+    implementation("androidx.compose.runtime:runtime-livedata")
+    implementation("androidx.compose.material:material-icons-core")
+    // Optional - Add full set of material icons
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
+
 
 
     implementation("androidx.core:core-ktx:1.9.0")

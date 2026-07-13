@@ -79,5 +79,11 @@ class LocationListViewModel: ViewModel() {
         }
     }
 
+    fun updateIsDefault(location: Location, isDefault: Boolean) {
+        viewModelScope.launch {
+            locationRepository.updateIsDefault(location.id, isDefault)
+        }
+    }
+
 
 }

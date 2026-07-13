@@ -3,6 +3,7 @@ package com.supermanzer.weatherapp
 import android.util.Log
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,9 +19,16 @@ import kotlinx.coroutines.launch
 private const val TAG = "ForecastViewModel"
 
 class ForecastViewModel: ViewModel() {
+//    val defaultLocation: LiveData<Location?>
     private val weatherRepository = WeatherRepository()
     private val locationRepository = LocationRepository.get()
-    var defaultLocation: Location? = null
+//    var defaultLocation: Location? = null
+
+    // Private MutableLiveData for the default location
+    private val _defaultLocation = MutableLiveData<Location?>()
+
+    // Public LiveData for observing changes to the default location
+    val defaultLocation: LiveData<Location?> = _defaultLocation
 
     var apiError: Boolean = false
     var apiErrorMessage: String? = null
@@ -36,6 +44,12 @@ class ForecastViewModel: ViewModel() {
         get() = _hourlyForecastPeriods
     val locationList: LiveData<List<Location>>
         get() = _locationList
+
+    val currentConditions: LiveData<ForecastPeriod?> = MediatorLiveData<ForecastPeriod?>().apply {
+        addSource(hourlyForecastPeriods) { periods ->
+            value = periods.firstOrNull()
+        }
+    }
 
 
 
@@ -71,6 +85,7 @@ class ForecastViewModel: ViewModel() {
     private suspend fun fetchUrlSetState(url: String, stateFlow: MutableLiveData<List<ForecastPeriod>>){
         try {
             val periods = weatherRepository.getForecast(url).properties.periods
+            Log.d(TAG, "Fetched ${periods.size} forecast periods from ${url}")
             stateFlow.value = periods
         } catch (ex: Exception) {
             Log.e(TAG, "Failing to fetch forecast periods", ex)
@@ -83,7 +98,8 @@ class ForecastViewModel: ViewModel() {
     init {
         viewModelScope.launch {
             try {
-                defaultLocation = locationRepository.getDefaultLocation()
+                val defaultLocation = locationRepository.getDefaultLocation()
+                _defaultLocation.value = defaultLocation
                 Log.d(TAG, "Default Location $defaultLocation")
                 if (defaultLocation != null) {
                    updateForecast(defaultLocation!!)
