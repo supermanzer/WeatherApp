@@ -1,5 +1,6 @@
 package com.supermanzer.weatherapp.compose
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -99,12 +100,18 @@ fun DailyForecastItemView(item: ForecastPeriod) {
                         modifier = Modifier.size(46.dp)
                     )
                 }
-                Text(
-                    text = "${item.temperature.toInt()}°${item.temperatureUnit}",
+                AnimatedContent(
+                    targetState = item.temperature.toInt(),
                     modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.End,
-                    style = MaterialTheme.typography.titleMedium
-                )
+                    label = "dailyTemperature"
+                ) { temp ->
+                    Text(
+                        text = "${temp}°${item.temperatureUnit}",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
                 Box(
                     modifier = Modifier.weight(1f),
                     contentAlignment = Alignment.Center

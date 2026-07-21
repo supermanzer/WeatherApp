@@ -9,8 +9,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -34,6 +36,8 @@ fun LayoutScreen(navController: NavController, forecastViewModel: ForecastViewMo
     val forecastDiscussion by forecastViewModel.forecastDiscussion.observeAsState()
     val forecastDiscussionLoading by forecastViewModel.forecastDiscussionLoading.observeAsState(initial = false)
     val forecastDiscussionError by forecastViewModel.forecastDiscussionError.observeAsState()
+    val isRefreshing by forecastViewModel.isRefreshing.observeAsState(initial = false)
+    val refreshError by forecastViewModel.refreshError.observeAsState()
     var showDiscussionDialog by remember { mutableStateOf(false) }
 
     if (showDiscussionDialog) {
@@ -55,33 +59,49 @@ fun LayoutScreen(navController: NavController, forecastViewModel: ForecastViewMo
 //            )
 //        }
     ) { innerPadding ->
-        Column(
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = { forecastViewModel.refresh() },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 4.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            LocationMenu(
-                locationList = locationList,
-                selectedLocation = selectedLocation,
-                onLocationSelected = { location -> forecastViewModel.updateForecast(location) },
-                onNewLocationClicked = { navController.navigate(Screen.NewLocation.route) }
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                LocationMenu(
+                    locationList = locationList,
+                    selectedLocation = selectedLocation,
+                    onLocationSelected = { location -> forecastViewModel.updateForecast(location) },
+                    onNewLocationClicked = { navController.navigate(Screen.NewLocation.route) }
+                )
 
-            CurrentConditions(
-                forecastPeriodLiveData = forecastViewModel.currentConditions,
-                modifier = Modifier.fillMaxWidth(),
-                onDiscussionClick = {
-                    showDiscussionDialog = true
-                    forecastViewModel.fetchForecastDiscussion()
+                refreshError?.let { message ->
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
                 }
-            )
 
-            HourlyForecast(forecastItemsLiveData = forecastViewModel.hourlyForecastPeriods)
+                CurrentConditions(
+                    forecastPeriodLiveData = forecastViewModel.currentConditions,
+                    modifier = Modifier.fillMaxWidth(),
+                    onDiscussionClick = {
+                        showDiscussionDialog = true
+                        forecastViewModel.fetchForecastDiscussion()
+                    }
+                )
 
-            DailyForecast(forecastPeriodsLiveData = forecastViewModel.forecastPeriods)
+                HourlyForecast(forecastItemsLiveData = forecastViewModel.hourlyForecastPeriods)
+
+                DailyForecast(forecastPeriodsLiveData = forecastViewModel.forecastPeriods)
+            }
         }
     }
 }

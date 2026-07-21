@@ -1,5 +1,6 @@
 package com.supermanzer.weatherapp.compose
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -76,10 +77,12 @@ fun HourlyForecastItemView(item: ForecastPeriod) {
             contentDescription = item.shortForecast,
             modifier = Modifier.size(46.dp)
         )
-        Text(
-            text = "${item.temperature.toInt()}°${item.temperatureUnit}",
-            style = MaterialTheme.typography.titleMedium
-        )
+        AnimatedContent(targetState = item.temperature.toInt(), label = "hourlyTemperature") { temp ->
+            Text(
+                text = "${temp}°${item.temperatureUnit}",
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
         PrecipitationChance(
             percent = item.probabilityOfPrecipitation?.value?.toInt() ?: 0,
             color = MaterialTheme.colorScheme.primary

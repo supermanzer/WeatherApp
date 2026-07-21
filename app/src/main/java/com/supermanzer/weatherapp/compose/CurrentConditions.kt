@@ -1,5 +1,6 @@
 package com.supermanzer.weatherapp.compose
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,12 +35,14 @@ fun CurrentConditions(
 ) {
     val forecastPeriod by forecastPeriodLiveData.observeAsState()
 
-    forecastPeriod?.let { period ->
-        CurrentConditionsContent(
-            forecastPeriod = period,
-            modifier = modifier,
-            onDiscussionClick = onDiscussionClick
-        )
+    Crossfade(targetState = forecastPeriod, label = "currentConditions") { period ->
+        period?.let {
+            CurrentConditionsContent(
+                forecastPeriod = it,
+                modifier = modifier,
+                onDiscussionClick = onDiscussionClick
+            )
+        }
     }
 }
 

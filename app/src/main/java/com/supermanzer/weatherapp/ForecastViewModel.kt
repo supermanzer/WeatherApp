@@ -6,14 +6,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 
 import com.supermanzer.weatherapp.api.ForecastPeriod
 
+import com.supermanzer.weatherapp.db.FORECAST_TYPE_DAILY
+import com.supermanzer.weatherapp.db.FORECAST_TYPE_HOURLY
 import com.supermanzer.weatherapp.db.Location
 import com.supermanzer.weatherapp.db.LocationRepository
 
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 
@@ -34,17 +40,34 @@ class ForecastViewModel: ViewModel() {
     var apiError: Boolean = false
     var apiErrorMessage: String? = null
 
-    private val _hourlyForecastPeriods: MutableLiveData<List<ForecastPeriod>>  = MutableLiveData(
-        emptyList())
-    private val _forecastPeriods: MutableLiveData<List<ForecastPeriod>> =
-        MutableLiveData(emptyList())
     private val _locationList: MutableLiveData<List<Location>> = MutableLiveData(emptyList())
-    val forecastPeriods: LiveData<List<ForecastPeriod>>
-        get() = _forecastPeriods
-    val hourlyForecastPeriods: LiveData<List<ForecastPeriod>>
-        get() = _hourlyForecastPeriods
     val locationList: LiveData<List<Location>>
         get() = _locationList
+
+    // Room is the source of truth: switching locations re-subscribes to that
+    // location's cached forecast, so cached data shows immediately and updates
+    // reactively whenever refreshForecast() writes fresh data into the cache.
+    val forecastPeriods: LiveData<List<ForecastPeriod>> = _selectedLocation.switchMap { location ->
+        location?.let {
+            locationRepository.observeForecastCache(it.id.toString(), FORECAST_TYPE_DAILY)
+                .map { cache -> cache?.periods ?: emptyList() }
+                .asLiveData()
+        } ?: MutableLiveData(emptyList())
+    }
+
+    val hourlyForecastPeriods: LiveData<List<ForecastPeriod>> = _selectedLocation.switchMap { location ->
+        location?.let {
+            locationRepository.observeForecastCache(it.id.toString(), FORECAST_TYPE_HOURLY)
+                .map { cache -> cache?.periods ?: emptyList() }
+                .asLiveData()
+        } ?: MutableLiveData(emptyList())
+    }
+
+    private val _isRefreshing = MutableLiveData(false)
+    val isRefreshing: LiveData<Boolean> = _isRefreshing
+
+    private val _refreshError = MutableLiveData<String?>(null)
+    val refreshError: LiveData<String?> = _refreshError
 
     private val _forecastDiscussion = MutableLiveData<String?>(null)
     val forecastDiscussion: LiveData<String?> = _forecastDiscussion
@@ -63,52 +86,56 @@ class ForecastViewModel: ViewModel() {
 
 
 
-    private fun updateForecastPeriods(location: Location) {
-        if (location.forecastUrl !== null) {
-            val url = location.forecastUrl
-            viewModelScope.launch {
-                fetchUrlSetState(url, _forecastPeriods)
-            }
-        } else {
-            apiError = true
-            apiErrorMessage = "Forecast URL not set for location ${location.name}"
-        }
-    }
-    private fun updateHourlyForecast(location: Location) {
-        if (location.forecastHourlyUrl !== null) {
-            val url = location.forecastHourlyUrl
-            viewModelScope.launch {
-                fetchUrlSetState(url, _hourlyForecastPeriods, limit = HOURLY_PERIOD_LIMIT)
-            }
-        } else {
-            apiError = true
-            apiErrorMessage = "Hourly forecast URL not set for location ${location.name}"
-        }
-    }
-
     fun getDefaultLocationTitle(callback: (Location?) -> Unit) {
         viewModelScope.launch {
             val location = locationRepository.getDefaultLocation()
             callback(location)
         }
     }
-    private suspend fun fetchUrlSetState(
-        url: String,
-        stateFlow: MutableLiveData<List<ForecastPeriod>>,
-        limit: Int? = null
-    ) {
+
+    private suspend fun refreshForecast(location: Location) {
+        _isRefreshing.value = true
+        _refreshError.value = null
         try {
-            val periods = weatherRepository.getForecast(url).properties.periods
-            Log.d(TAG, "Fetched ${periods.size} forecast periods from ${url}")
-            stateFlow.value = if (limit != null) periods.take(limit) else periods
+            coroutineScope {
+                launch {
+                    val url = location.forecastUrl
+                    if (url == null) {
+                        apiError = true
+                        apiErrorMessage = "Forecast URL not set for location ${location.name}"
+                    } else {
+                        val periods = weatherRepository.getForecast(url).properties.periods
+                        locationRepository.cacheForecast(location.id.toString(), FORECAST_TYPE_DAILY, periods)
+                    }
+                }
+                launch {
+                    val url = location.forecastHourlyUrl
+                    if (url == null) {
+                        apiError = true
+                        apiErrorMessage = "Hourly forecast URL not set for location ${location.name}"
+                    } else {
+                        val periods = weatherRepository.getForecast(url).properties.periods.take(HOURLY_PERIOD_LIMIT)
+                        locationRepository.cacheForecast(location.id.toString(), FORECAST_TYPE_HOURLY, periods)
+                    }
+                }
+            }
         } catch (ex: Exception) {
-            Log.e(TAG, "Failing to fetch forecast periods", ex)
+            Log.e(TAG, "Failed to refresh forecast", ex)
+            _refreshError.value = "Couldn't refresh forecast"
+        } finally {
+            _isRefreshing.value = false
         }
     }
+
     fun updateForecast(location: Location) {
         _selectedLocation.value = location
-        updateForecastPeriods(location)
-        updateHourlyForecast(location)
+        viewModelScope.launch { refreshForecast(location) }
+    }
+
+    fun refresh() {
+        _selectedLocation.value?.let { location ->
+            viewModelScope.launch { refreshForecast(location) }
+        }
     }
     fun fetchForecastDiscussion() {
         val location = _selectedLocation.value ?: return
