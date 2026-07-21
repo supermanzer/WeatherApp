@@ -15,7 +15,7 @@ interface LocationDao {
     fun getLocations(): Flow<List<Location>>
 
     @Query("SELECT * FROM locations WHERE isDefault")
-    suspend fun getDefaultLocation(): Location
+    suspend fun getDefaultLocation(): Location?
 
     @Query("SELECT * FROM locations WHERE id=(:id)")
     suspend fun getLocation(id: UUID): Location

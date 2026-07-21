@@ -7,6 +7,7 @@ import com.supermanzer.weatherapp.api.GeocodeApi
 import com.supermanzer.weatherapp.api.GeocodeResponse
 import com.supermanzer.weatherapp.api.NumberJsonAdapter
 import com.supermanzer.weatherapp.api.NwsApi
+import com.supermanzer.weatherapp.api.NwsUserAgentInterceptor
 import com.supermanzer.weatherapp.api.loggingInterceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -25,6 +26,7 @@ class WeatherRepository {
 
     init {
         val weatherClient = OkHttpClient.Builder()
+            .addInterceptor(NwsUserAgentInterceptor())
             .addInterceptor(loggingInterceptor)
             .build()
         val retrofit: Retrofit = Retrofit.Builder()
@@ -52,6 +54,12 @@ class WeatherRepository {
     suspend fun fetchForecastEndpoints(lat: Double, lon: Double) = nwsApi.getForecastEndpoints(lat, lon)
 
     suspend fun getForecast(url: String) = nwsApi.getForecast(url)
+
+    suspend fun getForecastDiscussion(cwa: String): String? {
+        val latestId = nwsApi.getForecastDiscussionSummaries(cwa).graph.firstOrNull()?.id
+            ?: return null
+        return nwsApi.getProduct(latestId).productText
+    }
 
     suspend fun getGeocodeResponse(location: String): GeocodeResponse {
         val response = geocodeApi.getGeocode(location)

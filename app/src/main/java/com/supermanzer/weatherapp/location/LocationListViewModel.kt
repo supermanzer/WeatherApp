@@ -57,7 +57,8 @@ class LocationListViewModel: ViewModel() {
                 lon = location.geometry.location.lng,
                 isDefault = false,
                 forecastUrl = endpoints.properties.forecast,
-                forecastHourlyUrl = endpoints.properties.forecastHourly
+                forecastHourlyUrl = endpoints.properties.forecastHourly,
+                cwa = endpoints.properties.cwa
             )
             Log.d(TAG, "addLocation: $dbLocation")
             _locationID.value = dbLocation.id

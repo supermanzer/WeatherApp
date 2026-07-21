@@ -3,6 +3,8 @@ package com.supermanzer.weatherapp.db
 import android.content.Context
 import android.util.Log
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
@@ -12,6 +14,13 @@ import java.util.UUID
 
 private const val DATABASE_NAME="location-database.db"
 private const val TAG = "LocationRepository"
+
+private val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE locations ADD COLUMN cwa TEXT")
+    }
+}
+
 class LocationRepository internal constructor(
     context: Context,
     private val coroutineScope: CoroutineScope = GlobalScope
@@ -22,6 +31,7 @@ class LocationRepository internal constructor(
             LocationDatabase::class.java,
             DATABASE_NAME
         )
+        .addMigrations(MIGRATION_1_2)
         .build()
 
     fun getLocations(): Flow<List<Location>> {

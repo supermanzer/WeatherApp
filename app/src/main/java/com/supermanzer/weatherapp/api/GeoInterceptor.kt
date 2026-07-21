@@ -15,6 +15,15 @@ val loggingInterceptor = HttpLoggingInterceptor().apply {
     level = HttpLoggingInterceptor.Level.BASIC
 }
 
+class NwsUserAgentInterceptor: Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val newRequest: Request = chain.request().newBuilder()
+            .header("User-Agent", "WeatherApp (${BuildConfig.APPLICATION_ID}, ryan.manzer@gmail.com)")
+            .build()
+        return chain.proceed(newRequest)
+    }
+}
+
 class GeoInterceptor: Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest: Request = chain.request()

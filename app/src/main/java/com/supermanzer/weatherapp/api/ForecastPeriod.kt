@@ -9,6 +9,14 @@ import com.squareup.moshi.ToJson
 import java.time.OffsetDateTime
 
 
+// NWS "QuantitativeValue" shape: { "unitCode": "wmoUnit:percent", "value": 79 }.
+// value is null when the API has no data for the field.
+@JsonClass(generateAdapter = true)
+data class QuantitativeValue(
+    val unitCode: String,
+    val value: Double?
+)
+
 @JsonClass(generateAdapter = true)
 data class ForecastPeriod(
     val number: Int,
@@ -23,6 +31,10 @@ data class ForecastPeriod(
     val detailedForecast: String,
     val startTime: String,
     val endTime: String,
+    // Present in both daily and hourly payloads
+    val probabilityOfPrecipitation: QuantitativeValue? = null,
+    // Hourly payloads only; absent from daily
+    val relativeHumidity: QuantitativeValue? = null,
 )
 
 

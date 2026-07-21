@@ -13,4 +13,26 @@
     <string name="confirm_location">Confirm Location</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Compose UI -->
+    <string name="hourly_forecast">Hourly Forecast</string>
+    <string name="daily_forecast">Daily Forecast</string>
+    <string name="select_location">Select a location</string>
+    <string name="add_new_location">Add New Location</string>
+    <string name="locations_title">Locations</string>
+    <string name="back">Back</string>
+    <string name="delete">Delete</string>
+    <string name="set_as_default">Set as Default</string>
+    <string name="enter_location_name">Enter Location Name</string>
+    <string name="lookup_location">Lookup Location</string>
+    <string name="location_found">Location Found:</string>
+    <string name="please_enter_location">Please enter a location name</string>
+    <string name="wind_label">Wind %1$s %2$s</string>
+    <string name="humidity_label">Humidity %1$d%%</string>
+    <string name="percent_format">%1$d%%</string>
+    <string name="precipitation_chance">Chance of precipitation</string>
+    <string name="error_loading_location">Error loading location</string>
+    <string name="forecast_discussion_link">Forecast Discussion</string>
+    <string name="forecast_discussion_title">Forecast Discussion</string>
+    <string name="forecast_discussion_error">Unable to load forecast discussion</string>
+    <string name="close">Close</string>
 </resources>

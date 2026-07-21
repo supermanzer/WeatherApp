@@ -1,105 +1,122 @@
 package com.supermanzer.weatherapp.compose
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
 import coil.compose.AsyncImage
+import com.supermanzer.weatherapp.R
 import com.supermanzer.weatherapp.api.ForecastPeriod
 
 @Composable
 fun CurrentConditions(
     forecastPeriodLiveData: LiveData<ForecastPeriod?>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDiscussionClick: () -> Unit = {}
 ) {
     val forecastPeriod by forecastPeriodLiveData.observeAsState()
 
     forecastPeriod?.let { period ->
-        CurrentConditionsContent(forecastPeriod = period, modifier = modifier)
+        CurrentConditionsContent(
+            forecastPeriod = period,
+            modifier = modifier,
+            onDiscussionClick = onDiscussionClick
+        )
     }
 }
 
 @Composable
 fun CurrentConditionsContent(
     forecastPeriod: ForecastPeriod,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDiscussionClick: () -> Unit = {}
 ) {
-    var showTooltip by remember { mutableStateOf(false) }
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .clickable { showTooltip = !showTooltip },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = Color.Transparent
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Image on the left, taking full height
             AsyncImage(
-                model = forecastPeriod.icon,
-                contentDescription = "Weather Icon",
-                modifier = Modifier
-                    .size(120.dp)
-                    .fillMaxHeight(),
-                contentScale = ContentScale.FillHeight
+                model = largeIconUrl(forecastPeriod.icon),
+                contentDescription = forecastPeriod.shortForecast,
+                modifier = Modifier.size(120.dp),
+                contentScale = ContentScale.Fit
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(20.dp))
 
-            // Text on the right, aligned to the image's right border
-            Column(
-                modifier = Modifier
-                    .weight(0.6f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Conditions: ${forecastPeriod.shortForecast}",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Black
+                    text = forecastPeriod.shortForecast,
+                    style = MaterialTheme.typography.titleMedium
                 )
-                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "${forecastPeriod.temperature.toInt()}° ${forecastPeriod.temperatureUnit}",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    text = "${forecastPeriod.temperature.toInt()}°",
+                    style = MaterialTheme.typography.displayLarge
                 )
-                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Wind ${forecastPeriod.windSpeed} ${forecastPeriod.windDirection}",
-                    fontSize = 16.sp,
-                    color = Color.Black
+                    text = stringResource(
+                        R.string.wind_label,
+                        forecastPeriod.windSpeed,
+                        forecastPeriod.windDirection
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    forecastPeriod.probabilityOfPrecipitation?.value?.let { pop ->
+                        PrecipitationChance(
+                            percent = pop.toInt(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    forecastPeriod.relativeHumidity?.value?.let { humidity ->
+                        Text(
+                            text = stringResource(R.string.humidity_label, humidity.toInt()),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                TextButton(
+                    onClick = onDiscussionClick,
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Text(text = stringResource(R.string.forecast_discussion_link))
+                }
             }
         }
     }
 }
+
+// NWS icon URLs arrive with ?size=small (56px); the hero renders at 120dp,
+// so request the largest raster the API offers.
+private fun largeIconUrl(url: String): String =
+    url.replace(Regex("size=\\w+"), "size=large")
