@@ -8,6 +8,7 @@ import com.supermanzer.weatherapp.api.GeocodeResponse
 import com.supermanzer.weatherapp.api.NumberJsonAdapter
 import com.supermanzer.weatherapp.api.NwsApi
 import com.supermanzer.weatherapp.api.NwsUserAgentInterceptor
+import com.supermanzer.weatherapp.api.formatNwsProductText
 import com.supermanzer.weatherapp.api.loggingInterceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -58,7 +59,7 @@ class WeatherRepository {
     suspend fun getForecastDiscussion(cwa: String): String? {
         val latestId = nwsApi.getForecastDiscussionSummaries(cwa).graph.firstOrNull()?.id
             ?: return null
-        return nwsApi.getProduct(latestId).productText
+        return formatNwsProductText(nwsApi.getProduct(latestId).productText)
     }
 
     suspend fun getGeocodeResponse(location: String): GeocodeResponse {

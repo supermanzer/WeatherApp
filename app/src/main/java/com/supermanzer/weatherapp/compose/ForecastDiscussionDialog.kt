@@ -43,7 +43,7 @@ fun ForecastDiscussionDialog(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 400.dp)
+                        .heightIn(max = 600.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
                     when {
@@ -55,7 +55,7 @@ fun ForecastDiscussionDialog(
                         )
                         text != null -> Text(
                             text = text,
-                            style = MaterialTheme.typography.bodySmall
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
