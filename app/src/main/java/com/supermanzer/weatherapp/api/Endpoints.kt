@@ -13,6 +13,7 @@ data class NwsGeometry (
 data class NwsProperties (
     val forecast: String,
     val forecastHourly: String,
+    val cwa: String,
 )
 @JsonClass(generateAdapter = true)
 data class Endpoints(

@@ -15,7 +15,7 @@ interface LocationDao {
     fun getLocations(): Flow<List<Location>>
 
     @Query("SELECT * FROM locations WHERE isDefault")
-    suspend fun getDefaultLocation(): Location
+    suspend fun getDefaultLocation(): Location?
 
     @Query("SELECT * FROM locations WHERE id=(:id)")
     suspend fun getLocation(id: UUID): Location
@@ -29,11 +29,11 @@ interface LocationDao {
     @Update
     suspend fun updateLocation(location: Location)
 
-//    @Query("UPDATE locations SET isDefault = False")
-//    suspend fun unsetDefault()
+    @Query("UPDATE locations SET isDefault = False")
+    suspend fun unsetDefault()
 //
-//    @Query("UPDATE locations SET isDefault =True WHERE id=(:id)")
-//    suspend fun setDefault(id: UUID)
+    @Query("UPDATE locations SET isDefault =True WHERE id=(:id)")
+    suspend fun setDefault(id: UUID)
 
     @Query("DELETE FROM locations WHERE id=(:id)")
     suspend fun deleteLocation(id: UUID)

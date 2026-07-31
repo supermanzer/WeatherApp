@@ -12,5 +12,6 @@ data class Location(
     val lon: Double?,
     val forecastUrl: String?,
     val forecastHourlyUrl: String?,
-    val isDefault: Boolean
+    val isDefault: Boolean,
+    val cwa: String? = null
 )

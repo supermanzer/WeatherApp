@@ -20,4 +20,10 @@ interface NwsApi {
 
     @GET()
     suspend fun getForecast(@Url url: String?): Forecast
+
+    @GET("/products/types/AFD/locations/{officeId}")
+    suspend fun getForecastDiscussionSummaries(@Path("officeId") officeId: String): AfdProductsResponse
+
+    @GET("/products/{id}")
+    suspend fun getProduct(@Path("id") id: String): AfdProductDetail
 }

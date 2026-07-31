@@ -3,6 +3,9 @@ package com.supermanzer.weatherapp.db
 import android.content.Context
 import android.util.Log
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.supermanzer.weatherapp.api.ForecastPeriod
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +15,30 @@ import java.util.UUID
 
 private const val DATABASE_NAME="location-database.db"
 private const val TAG = "LocationRepository"
-class LocationRepository private constructor(
+
+private val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE locations ADD COLUMN cwa TEXT")
+    }
+}
+
+private val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS cached_forecast (
+                locationId TEXT NOT NULL,
+                type TEXT NOT NULL,
+                periods TEXT NOT NULL,
+                fetchedAt INTEGER NOT NULL,
+                PRIMARY KEY(locationId, type)
+            )
+            """.trimIndent()
+        )
+    }
+}
+
+class LocationRepository internal constructor(
     context: Context,
     private val coroutineScope: CoroutineScope = GlobalScope
 ) {
@@ -22,6 +48,7 @@ class LocationRepository private constructor(
             LocationDatabase::class.java,
             DATABASE_NAME
         )
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
         .build()
 
     fun getLocations(): Flow<List<Location>> {
@@ -47,6 +74,23 @@ class LocationRepository private constructor(
         }
     }
     suspend fun deleteLocation(id: UUID) = database.locationDao().deleteLocation(id)
+
+    suspend fun updateIsDefault(id: UUID, isDefault: Boolean) {
+        database.locationDao().unsetDefault()
+        if (isDefault) {
+            database.locationDao().setDefault(id)
+        }
+    }
+
+    fun observeForecastCache(locationId: String, type: String): Flow<CachedForecastEntity?> =
+        database.forecastCacheDao().observe(locationId, type)
+
+    suspend fun cacheForecast(locationId: String, type: String, periods: List<ForecastPeriod>) {
+        database.forecastCacheDao().upsert(
+            CachedForecastEntity(locationId, type, periods, System.currentTimeMillis())
+        )
+    }
+
 
     companion object {
         private var INSTANCE: LocationRepository? = null

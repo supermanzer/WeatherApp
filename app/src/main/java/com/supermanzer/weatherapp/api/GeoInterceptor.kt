@@ -12,7 +12,16 @@ import okhttp3.logging.HttpLoggingInterceptor
 private val geoApiKey = BuildConfig.MAPS_API_KEY
 
 val loggingInterceptor = HttpLoggingInterceptor().apply {
-    level = HttpLoggingInterceptor.Level.BODY
+    level = HttpLoggingInterceptor.Level.BASIC
+}
+
+class NwsUserAgentInterceptor: Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val newRequest: Request = chain.request().newBuilder()
+            .header("User-Agent", "WeatherApp (${BuildConfig.APPLICATION_ID}, ryan.manzer@gmail.com)")
+            .build()
+        return chain.proceed(newRequest)
+    }
 }
 
 class GeoInterceptor: Interceptor {
