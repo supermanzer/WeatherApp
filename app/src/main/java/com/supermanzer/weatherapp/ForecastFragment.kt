@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter
 
 import android.widget.Spinner
 
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -36,11 +37,6 @@ class ForecastFragment: Fragment() {
         }
     private val forecastViewModel: ForecastViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-    
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -75,6 +71,24 @@ class ForecastFragment: Fragment() {
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_location_list, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.new_location -> {
+                        Log.d(TAG, "Location menu item selected")
+                        findNavController().navigate(
+                            ForecastFragmentDirections.toLocation()
+                        )
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
         forecastViewModel.getDefaultLocationTitle { location ->
             if (location != null) {
 //                (activity as AppCompatActivity).supportActionBar?.title = location.name
@@ -112,23 +126,6 @@ class ForecastFragment: Fragment() {
         _binding = null
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.fragment_location_list, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.new_location -> {
-                Log.d(TAG, "Location menu item selected")
-                findNavController().navigate(
-                    ForecastFragmentDirections.toLocation()
-                )
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
     private fun getLocationNames(locations: List<Location>): List<String> {
         return locations.map { it -> it.name }
     }
