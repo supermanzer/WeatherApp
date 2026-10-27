@@ -2,7 +2,9 @@ package com.supermanzer.weatherapp
 
 import android.os.Bundle
 import android.util.Log
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -67,11 +69,6 @@ class LayoutFragment : Fragment() {
 
         }
     }
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -95,6 +92,24 @@ class LayoutFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_location_list, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.new_location -> {
+                        Log.d(TAG, "Location menu item selected")
+                        findNavController().navigate(
+                            LayoutFragmentDirections.layoutToLocation()
+                        )
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
         // Replace the FrameLayouts with the child fragments
         loadChildFragment(currentConditionsFragment, binding.currentConditions.id)
         loadChildFragment(hourlyForecastFragment, binding.hourlyForecast.id)
@@ -107,23 +122,5 @@ class LayoutFragment : Fragment() {
         childFragmentManager.beginTransaction()
             .replace(id, fragment)
             .commit()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.fragment_location_list, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.new_location -> {
-                Log.d(TAG, "Location menu item selected")
-                findNavController().navigate(
-                    LayoutFragmentDirections.layoutToLocation()
-                )
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 }

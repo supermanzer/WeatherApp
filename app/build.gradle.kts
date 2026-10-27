@@ -47,6 +47,12 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    packaging {
+        jniLibs {
+            // Already stripped upstream; silences AGP's "unable to strip" notice
+            keepDebugSymbols += "**/libandroidx.graphics.path.so"
+        }
+    }
     buildFeatures {
         viewBinding = true
         buildConfig = true

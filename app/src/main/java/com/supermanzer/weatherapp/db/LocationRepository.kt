@@ -7,6 +7,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.supermanzer.weatherapp.api.ForecastPeriod
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -38,7 +39,7 @@ private val MIGRATION_2_3 = object : Migration(2, 3) {
     }
 }
 
-class LocationRepository internal constructor(
+class LocationRepository @OptIn(DelicateCoroutinesApi::class) internal constructor(
     context: Context,
     private val coroutineScope: CoroutineScope = GlobalScope
 ) {
